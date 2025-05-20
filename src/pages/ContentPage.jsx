@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import * as Bytescale from "@bytescale/sdk";
 import ProcessImage from "../components/ProcessImage";
 import ProcessAudio from "../components/ProcessAudio";
+import { useFileContext } from "../context/FileContext";
 import { useNavigate } from "react-router-dom";
 
 const ContentPage = () => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { selectFile } = useFileContext();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -91,51 +93,48 @@ const ContentPage = () => {
       <h1 className="text-xl font-bold mb-4">Files in Folder</h1>
       <ul className="space-y-4">
         {files.map((file, index) => (
-          <button onClick={navigate("/filepage")} className="w-full">
-          <li key={index} className="border p-4 rounded-lg shadow">
-            <div className="mb-2">
-              <strong>File Name:</strong> {getOriginalFileName(file)}
-            </div>
-            {file.metadata && (
-              <div className="mb-2">
-                <strong>Metadata:</strong>
-                <pre className="bg-gray-100 p-2 rounded mt-1 text-sm overflow-auto">
-                  {JSON.stringify(file.metadata.userSpecifiedFilename, null, 2)}
-                </pre>
-              </div>
-            )}
-            {file.tags && file.tags.length > 0 && (
-              <div className="mb-2">
-                <strong>Tags:</strong> {file.tags.join(", ")}
-              </div>
-            )}
-            <div className="mb-2">
-              <strong>MIME Type:</strong> {file.mime || "N/A"}
-            </div>
-            <div className="mb-2">
-              <strong>File Path:</strong> {file.filePath}
-            </div>
-            <div className="mb-2">
-              <strong>Size:</strong> {formatFileSize(file.size)}
-            </div>
-            <div className="mb-2">
-              <strong>Last Modified:</strong>{" "}
-              {new Date(file.lastModified).toLocaleString()}
-            </div>
-            {file.type === "File" && (
-              <div className="mt-2">
-                <a
-                  href={file.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-700"
-                >
-                  View/Download
-                </a>
-              </div>
-            )}
-          </li>
-          </button>
+          <div className="w-full" key={index}>
+            <button onClick={() => {
+              selectFile(file.fileUrl);
+              navigate("/filePage");
+            }} className="flex start justify-start">
+              <li className="border p-4 rounded-lg shadow">
+                <div className="mb-2">
+                  <strong>File Name:</strong> {getOriginalFileName(file)}
+                </div>
+                {file.tags && file.tags.length > 0 && (
+                  <div className="mb-2">
+                    <strong>Tags:</strong> {file.tags.join(", ")}
+                  </div>
+                )}
+                <div className="mb-2">
+                  <strong>MIME Type:</strong> {file.mime || "N/A"}
+                </div>
+                <div className="mb-2">
+                  <strong>File Path:</strong> {file.filePath}
+                </div>
+                <div className="mb-2">
+                  <strong>Size:</strong> {formatFileSize(file.size)}
+                </div>
+                <div className="mb-2">
+                  <strong>Last Modified:</strong>{" "}
+                  {new Date(file.lastModified).toLocaleString()}
+                </div>
+                {file.type === "File" && (
+                  <div className="mt-2">
+                    <a
+                      href={file.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:text-blue-700"
+                    >
+                      View/Download
+                    </a>
+                  </div>
+                )}
+              </li>
+            </button>
+          </div>
         ))}
       </ul>
       <ProcessImage fileUrl={files[0]?.fileUrl} />
