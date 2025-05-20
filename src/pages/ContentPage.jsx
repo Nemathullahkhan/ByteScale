@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import * as Bytescale from "@bytescale/sdk";
 import ProcessImage from "../components/ProcessImage";
 import ProcessAudio from "../components/ProcessAudio";
+import { useNavigate } from "react-router-dom";
 
 const ContentPage = () => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -73,14 +75,15 @@ const ContentPage = () => {
 
   // Function to get the original file name
   const getOriginalFileName = (file) => {
-    // Return the originalFileName if it exists, otherwise fall back to extracting from filePath
-
-    // Fallback: Extract from filePath
-    const result =
-      file.originalFileName.split("%20")[0] +
-      " " +
-      file.originalFileName.split("%20")[1];
-    return result;
+    if (file?.metadata?.userSpecifiedFilename) {
+      return file.metadata.userSpecifiedFilename;
+    }
+    // Fallback to originalFileName if available
+    if (file?.originalFileName) {
+      return file.originalFileName.split("%20").join(" ");
+    }
+    // Final fallback: extract from filePath
+    return file.filePath.split("/").pop().split("%20").join(" ");
   };
 
   return (
@@ -88,6 +91,7 @@ const ContentPage = () => {
       <h1 className="text-xl font-bold mb-4">Files in Folder</h1>
       <ul className="space-y-4">
         {files.map((file, index) => (
+          <button onClick={navigate("/filepage")} className="w-full">
           <li key={index} className="border p-4 rounded-lg shadow">
             <div className="mb-2">
               <strong>File Name:</strong> {getOriginalFileName(file)}
@@ -96,7 +100,7 @@ const ContentPage = () => {
               <div className="mb-2">
                 <strong>Metadata:</strong>
                 <pre className="bg-gray-100 p-2 rounded mt-1 text-sm overflow-auto">
-                  {JSON.stringify(file.metadata.useSpecifiedFileName, null, 2)}
+                  {JSON.stringify(file.metadata.userSpecifiedFilename, null, 2)}
                 </pre>
               </div>
             )}
@@ -131,10 +135,10 @@ const ContentPage = () => {
               </div>
             )}
           </li>
+          </button>
         ))}
       </ul>
       <ProcessImage fileUrl={files[0]?.fileUrl} />
-
       <ProcessAudio fileUrl={files[0]?.fileUrl} />
     </div>
   );
