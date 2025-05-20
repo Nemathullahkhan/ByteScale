@@ -91,13 +91,16 @@ const ContentPage = () => {
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Files in Folder</h1>
-      <ul className="space-y-4">
+      <ul className="space-y-4 grid-cols-3 ">
         {files.map((file, index) => (
-          <div className="w-full" key={index}>
-            <button onClick={() => {
-              selectFile(file.fileUrl);
-              navigate("/filePage");
-            }} className="flex start justify-start">
+          <div className="" key={index}>
+            <button
+              onClick={() => {
+                selectFile(file.fileUrl);
+                navigate("/filePage");
+              }}
+              className="flex start justify-start"
+            >
               <li className="border p-4 rounded-lg shadow">
                 <div className="mb-2">
                   <strong>File Name:</strong> {getOriginalFileName(file)}
@@ -137,8 +140,6 @@ const ContentPage = () => {
           </div>
         ))}
       </ul>
-      <ProcessImage fileUrl={files[0]?.fileUrl} />
-      <ProcessAudio fileUrl={files[0]?.fileUrl} />
     </div>
   );
 };
